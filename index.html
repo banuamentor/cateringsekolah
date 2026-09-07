@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catering Sekolah - Daily Menu Planner</title>
+  <style>
+    :root{
+      --bg:#f7f8fa;--card:#fff;--text:#17202a;--muted:#697386;--line:#e8ebf0;
+      --primary:#2563eb;--primary2:#eaf1ff;--good:#0f9d6c;--warn:#d97706;--danger:#dc2626;
+      --shadow:0 10px 30px rgba(16,24,40,.06);--radius:18px;
+    }
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text)}
+    button,input,select,textarea{font:inherit}.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+    aside{background:#111827;color:#fff;padding:24px 18px;position:sticky;top:0;height:100vh}
+    .brand{display:flex;gap:12px;align-items:center;margin-bottom:28px}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#60a5fa,#2563eb);display:grid;place-items:center;font-size:22px}.brand h1{font-size:16px;margin:0}.brand p{font-size:12px;color:#9ca3af;margin:3px 0 0}
+    nav{display:grid;gap:8px}.navbtn{border:0;background:transparent;color:#cbd5e1;padding:12px 14px;border-radius:12px;text-align:left;cursor:pointer}.navbtn.active,.navbtn:hover{background:#1f2937;color:#fff}.footnote{position:absolute;bottom:20px;left:18px;right:18px;font-size:11px;color:#94a3b8;line-height:1.5}
+    main{padding:28px;max-width:1500px;width:100%;margin:auto}.topbar{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}.topbar h2{margin:0;font-size:26px}.topbar p{margin:6px 0 0;color:var(--muted)}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:#fff;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:650}.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}.btn.danger{color:var(--danger)}
+    .grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}.stat .label{color:var(--muted);font-size:13px}.stat .value{font-size:28px;font-weight:800;margin-top:8px}.stat .hint{font-size:12px;margin-top:5px;color:var(--muted)}
+    .layout{grid-template-columns:1.45fr .85fr}.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.section-title h3{margin:0;font-size:17px}.section-title span{font-size:12px;color:var(--muted)}
+    .datebar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}.datebar input{border:1px solid var(--line);padding:9px 11px;border-radius:11px;background:#fff}
+    .school-card{border:1px solid var(--line);border-radius:15px;padding:14px;margin-bottom:12px;background:#fff}.school-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.school-name{font-weight:800}.school-meta{font-size:12px;color:var(--muted);margin-top:4px}.pill{font-size:11px;padding:5px 8px;border-radius:99px;background:var(--primary2);color:var(--primary);font-weight:700}.meal{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px}.meal-title{font-weight:750;font-size:13px;margin-bottom:7px}.meal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mini{background:#f8fafc;border:1px solid #eef2f7;border-radius:10px;padding:9px}.mini b{display:block;font-size:12px}.mini span{font-size:12px;color:var(--muted)}
+    .status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700}.dot{width:8px;height:8px;border-radius:50%;background:var(--good)}.dot.warn{background:var(--warn)}
+    table{width:100%;border-collapse:collapse}th,td{padding:12px 10px;text-align:left;border-bottom:1px solid var(--line);font-size:13px}th{font-size:12px;color:var(--muted);font-weight:700}tr:last-child td{border-bottom:0}.empty{padding:30px;text-align:center;color:var(--muted)}
+    .view{display:none}.view.active{display:block}.modal{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;place-items:center;padding:18px;z-index:50}.modal.open{display:grid}.modal-card{width:min(720px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:20px;padding:20px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:700;color:#475569}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:10px}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.check{display:flex;gap:8px;align-items:center;border:1px solid var(--line);padding:9px;border-radius:10px}
+    .week{display:grid;grid-template-columns:repeat(7,minmax(150px,1fr));gap:10px;overflow-x:auto}.day{min-width:150px;border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}.day .dname{font-weight:800;font-size:13px}.day .ddate{font-size:11px;color:var(--muted);margin-bottom:10px}.menu-chip{font-size:11px;padding:7px 8px;background:#f8fafc;border-radius:8px;margin-top:6px;line-height:1.4}
+    @media(max-width:1000px){.app{grid-template-columns:1fr}aside{height:auto;position:static;display:flex;align-items:center;gap:16px;padding:14px 16px}.brand{margin:0}.brand p,.footnote{display:none}nav{display:flex;overflow:auto}.navbtn{white-space:nowrap}.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}}
+    @media(max-width:620px){main{padding:16px}.topbar{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.checklist{grid-template-columns:1fr}.meal-grid{grid-template-columns:1fr}.stat .value{font-size:22px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><div class="logo">🍱</div><div><h1>Catering Sekolah</h1><p>Menu & distribusi harian</p></div></div>
+    <nav>
+      <button class="navbtn active" data-view="dashboard">Dashboard</button>
+      <button class="navbtn" data-view="calendar">Kalender Menu</button>
+      <button class="navbtn" data-view="schools">Sekolah</button>
+      <button class="navbtn" data-view="reports">Rekap</button>
+    </nav>
+    <div class="footnote">MVP lokal • data tersimpan di browser perangkat ini.</div>
+  </aside>
+
+  <main>
+    <section id="dashboard" class="view active">
+      <div class="topbar"><div><h2>Dashboard Catering</h2><p>Atur menu, porsi, dan kesiapan distribusi per sekolah.</p></div><div class="actions"><button class="btn" id="seedBtn">Reset Demo</button><button class="btn primary" id="addMenuBtn">+ Buat Menu</button></div></div>
+      <div class="grid stats">
+        <div class="card stat"><div class="label">Sekolah Aktif</div><div class="value" id="statSchools">0</div><div class="hint">Lokasi penerima catering</div></div>
+        <div class="card stat"><div class="label">Total Porsi Hari Ini</div><div class="value" id="statPortions">0</div><div class="hint">Akumulasi seluruh sekolah</div></div>
+        <div class="card stat"><div class="label">Menu Terjadwal</div><div class="value" id="statMenus">0</div><div class="hint">Untuk tanggal terpilih</div></div>
+        <div class="card stat"><div class="label">Siap Dikirim</div><div class="value" id="statReady">0</div><div class="hint">Sekolah berstatus siap</div></div>
+      </div>
+
+      <div class="grid layout">
+        <div class="card">
+          <div class="section-title"><h3>Menu Harian per Sekolah</h3><span id="dayLabel"></span></div>
+          <div class="datebar"><button class="btn" id="prevDay">←</button><input type="date" id="datePicker"><button class="btn" id="nextDay">→</button></div>
+          <div id="dailyList"></div>
+        </div>
+        <div class="card">
+          <div class="section-title"><h3>Ringkasan Operasional</h3><span>Hari terpilih</span></div>
+          <div id="opsSummary"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="calendar" class="view">
+      <div class="topbar"><div><h2>Kalender Menu</h2><p>Lihat rencana menu 7 hari dari tanggal yang dipilih.</p></div><button class="btn primary" id="addMenuBtn2">+ Buat Menu</button></div>
+      <div class="card"><div class="datebar"><input type="date" id="weekStart"></div><div class="week" id="weekGrid"></div></div>
+    </section>
+
+    <section id="schools" class="view">
+      <div class="topbar"><div><h2>Data Sekolah</h2><p>Kelola sekolah, jumlah siswa, kontak PIC, dan kebutuhan khusus.</p></div><button class="btn primary" id="addSchoolBtn">+ Tambah Sekolah</button></div>
+      <div class="card"><div id="schoolsTable"></div></div>
+    </section>
+
+    <section id="reports" class="view">
+      <div class="topbar"><div><h2>Rekap Catering</h2><p>Rekap sederhana untuk operasional dan pembelian bahan.</p></div><button class="btn" id="exportBtn">Export CSV</button></div>
+      <div class="card"><div class="section-title"><h3>Rekap Menu</h3><span>Semua jadwal</span></div><div id="reportsTable"></div></div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="schoolModal"><div class="modal-card"><div class="section-title"><h3>Tambah Sekolah</h3><button class="btn" onclick="closeModal('schoolModal')">✕</button></div>
+<form id="schoolForm" class="form-grid">
+<div class="field"><label>Nama Sekolah</label><input name="name" required placeholder="SDN 1 Palu"></div>
+<div class="field"><label>Jumlah Siswa/Porsi</label><input name="students" type="number" min="1" required placeholder="150"></div>
+<div class="field"><label>Nama PIC</label><input name="pic" placeholder="Nama penanggung jawab"></div>
+<div class="field"><label>No. WhatsApp</label><input name="phone" placeholder="08xxxxxxxxxx"></div>
+<div class="field full"><label>Catatan kebutuhan khusus</label><textarea name="notes" rows="3" placeholder="Contoh: 2 siswa alergi telur, 1 tanpa susu"></textarea></div>
+<div class="field"><label>Status</label><select name="active"><option value="yes">Aktif</option><option value="no">Nonaktif</option></select></div>
+<div class="modal-actions field full"><button type="button" class="btn" onclick="closeModal('schoolModal')">Batal</button><button class="btn primary">Simpan Sekolah</button></div>
+</form></div></div>
+
+<div class="modal" id="menuModal"><div class="modal-card"><div class="section-title"><h3>Buat Menu Harian</h3><button class="btn" onclick="closeModal('menuModal')">✕</button></div>
+<form id="menuForm" class="form-grid">
+<div class="field"><label>Tanggal</label><input name="date" type="date" required></div>
+<div class="field"><label>Jenis Makan</label><select name="meal"><option>Makan Siang</option><option>Sarapan</option><option>Snack</option></select></div>
+<div class="field"><label>Karbohidrat</label><input name="carb" required placeholder="Nasi putih"></div>
+<div class="field"><label>Lauk Utama</label><input name="protein" required placeholder="Ayam kecap"></div>
+<div class="field"><label>Sayur</label><input name="vegetable" placeholder="Tumis wortel buncis"></div>
+<div class="field"><label>Buah / Tambahan</label><input name="fruit" placeholder="Pisang"></div>
+<div class="field full"><label>Catatan dapur</label><textarea name="notes" rows="2" placeholder="Contoh: saus dipisah, level pedas 0"></textarea></div>
+<div class="field full"><label>Diterapkan ke sekolah</label><div id="schoolChecks" class="checklist"></div></div>
+<div class="modal-actions field full"><button type="button" class="btn" onclick="closeModal('menuModal')">Batal</button><button class="btn primary">Simpan Menu</button></div>
+</form></div></div>
+
+<script>
+const KEY='school_catering_mvp_v1';
+const todayISO=()=>new Date().toISOString().slice(0,10);
+const addDays=(iso,n)=>{const d=new Date(iso+'T00:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+const fmt=iso=>new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date(iso+'T00:00:00'));
+const seed=()=>({
+ schools:[
+  {id:'s1',name:'SDN Inpres Birobuli',students:180,pic:'Ibu Rina',phone:'0812xxxx1111',notes:'2 siswa alergi telur',active:true},
+  {id:'s2',name:'SD Islam Terpadu Palu',students:145,pic:'Pak Arif',phone:'0812xxxx2222',notes:'5 porsi tanpa susu',active:true},
+  {id:'s3',name:'TK Ceria Palu',students:72,pic:'Ibu Maya',phone:'0812xxxx3333',notes:'Porsi anak usia dini',active:true}
+ ],
+ menus:[
+  {id:'m1',date:todayISO(),meal:'Makan Siang',carb:'Nasi putih',protein:'Ayam kecap',vegetable:'Tumis wortel buncis',fruit:'Pisang',notes:'Tidak pedas',schools:['s1','s2','s3'],status:{s1:'ready',s2:'prep',s3:'ready'}},
+  {id:'m2',date:addDays(todayISO(),1),meal:'Makan Siang',carb:'Nasi kuning',protein:'Ikan fillet saus tomat',vegetable:'Capcay',fruit:'Semangka',notes:'Saus terpisah',schools:['s1','s2','s3'],status:{}},
+  {id:'m3',date:addDays(todayISO(),2),meal:'Makan Siang',carb:'Nasi putih',protein:'Daging semur',vegetable:'Sup sayur',fruit:'Jeruk',notes:'',schools:['s1','s2'],status:{}}
+ ]
+});
+let data=JSON.parse(localStorage.getItem(KEY)||'null')||seed();
+let selectedDate=todayISO();
+const save=()=>localStorage.setItem(KEY,JSON.stringify(data));
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+
+function switchView(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.view===id));if(id==='calendar')renderWeek();if(id==='schools')renderSchools();if(id==='reports')renderReports();}
+document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+function openModal(id){document.getElementById(id).classList.add('open')}window.closeModal=id=>document.getElementById(id).classList.remove('open');
+
+function renderAll(){
+ document.getElementById('datePicker').value=selectedDate;document.getElementById('weekStart').value=selectedDate;document.getElementById('dayLabel').textContent=fmt(selectedDate);
+ const activeSchools=data.schools.filter(s=>s.active);const menus=data.menus.filter(m=>m.date===selectedDate);
+ let portions=0,ready=0;activeSchools.forEach(s=>{if(menus.some(m=>m.schools.includes(s.id)))portions+=Number(s.students||0);if(menus.some(m=>m.status?.[s.id]==='ready'))ready++});
+ document.getElementById('statSchools').textContent=activeSchools.length;document.getElementById('statPortions').textContent=portions.toLocaleString('id-ID');document.getElementById('statMenus').textContent=menus.length;document.getElementById('statReady').textContent=ready;
+ renderDaily();renderOps();renderChecks();
+}
+function renderDaily(){const wrap=document.getElementById('dailyList');const menus=data.menus.filter(m=>m.date===selectedDate);if(!menus.length){wrap.innerHTML='<div class="empty">Belum ada menu untuk tanggal ini.</div>';return}
+ let html='';menus.forEach(m=>{m.schools.forEach(sid=>{const s=data.schools.find(x=>x.id===sid);if(!s||!s.active)return;const st=m.status?.[sid]||'prep';html+=`<div class="school-card"><div class="school-head"><div><div class="school-name">${esc(s.name)}</div><div class="school-meta">${s.students} porsi • PIC ${esc(s.pic||'-')}</div></div><button class="btn" onclick="toggleStatus('${m.id}','${sid}')"><span class="status"><span class="dot ${st==='ready'?'':'warn'}"></span>${st==='ready'?'Siap kirim':'Persiapan'}</span></button></div><div class="meal"><div class="meal-title">${esc(m.meal)}</div><div class="meal-grid"><div class="mini"><b>Karbohidrat</b><span>${esc(m.carb)}</span></div><div class="mini"><b>Lauk</b><span>${esc(m.protein)}</span></div><div class="mini"><b>Sayur</b><span>${esc(m.vegetable||'-')}</span></div><div class="mini"><b>Buah/Tambahan</b><span>${esc(m.fruit||'-')}</span></div></div>${s.notes?`<div class="school-meta" style="margin-top:9px">⚠ ${esc(s.notes)}</div>`:''}</div></div>`})});wrap.innerHTML=html||'<div class="empty">Belum ada sekolah aktif untuk menu ini.</div>'}
+window.toggleStatus=(mid,sid)=>{const m=data.menus.find(x=>x.id===mid);m.status=m.status||{};m.status[sid]=m.status[sid]==='ready'?'prep':'ready';save();renderAll();};
+function renderOps(){const menus=data.menus.filter(m=>m.date===selectedDate);const counts={};menus.forEach(m=>m.schools.forEach(sid=>{const s=data.schools.find(x=>x.id===sid);if(!s)return;['carb','protein','vegetable','fruit'].forEach(k=>{if(m[k])counts[m[k]]=(counts[m[k]]||0)+Number(s.students||0)})}));const rows=Object.entries(counts).sort((a,b)=>b[1]-a[1]);document.getElementById('opsSummary').innerHTML=rows.length?`<table><thead><tr><th>Komponen</th><th>Estimasi porsi</th></tr></thead><tbody>${rows.map(([k,v])=>`<tr><td>${esc(k)}</td><td><b>${v.toLocaleString('id-ID')}</b></td></tr>`).join('')}</tbody></table>`:'<div class="empty">Belum ada kebutuhan bahan untuk tanggal ini.</div>'}
+function renderChecks(){document.getElementById('schoolChecks').innerHTML=data.schools.filter(s=>s.active).map(s=>`<label class="check"><input type="checkbox" name="schools" value="${s.id}" checked> <span>${esc(s.name)} <small>(${s.students} porsi)</small></span></label>`).join('')}
+function renderSchools(){const w=document.getElementById('schoolsTable');w.innerHTML=data.schools.length?`<table><thead><tr><th>Sekolah</th><th>Porsi</th><th>PIC</th><th>Kebutuhan khusus</th><th>Status</th><th></th></tr></thead><tbody>${data.schools.map(s=>`<tr><td><b>${esc(s.name)}</b></td><td>${s.students}</td><td>${esc(s.pic||'-')}<br><span style="color:var(--muted)">${esc(s.phone||'')}</span></td><td>${esc(s.notes||'-')}</td><td>${s.active?'Aktif':'Nonaktif'}</td><td><button class="btn danger" onclick="removeSchool('${s.id}')">Hapus</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty">Belum ada data sekolah.</div>'}
+window.removeSchool=id=>{if(!confirm('Hapus sekolah ini?'))return;data.schools=data.schools.filter(s=>s.id!==id);data.menus.forEach(m=>m.schools=m.schools.filter(x=>x!==id));save();renderAll();renderSchools();};
+function renderWeek(){const base=document.getElementById('weekStart').value||selectedDate;document.getElementById('weekGrid').innerHTML=Array.from({length:7},(_,i)=>{const d=addDays(base,i);const menus=data.menus.filter(m=>m.date===d);return `<div class="day"><div class="dname">${new Intl.DateTimeFormat('id-ID',{weekday:'short'}).format(new Date(d+'T00:00:00'))}</div><div class="ddate">${new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'short'}).format(new Date(d+'T00:00:00'))}</div>${menus.length?menus.map(m=>`<div class="menu-chip"><b>${esc(m.meal)}</b><br>${esc(m.carb)} • ${esc(m.protein)}<br><span style="color:var(--muted)">${m.schools.length} sekolah</span></div>`).join(''):'<div class="menu-chip">Belum ada menu</div>'}</div>`}).join('')}
+function renderReports(){const rows=data.menus.slice().sort((a,b)=>a.date.localeCompare(b.date));document.getElementById('reportsTable').innerHTML=rows.length?`<table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Menu</th><th>Sekolah</th><th>Total Porsi</th></tr></thead><tbody>${rows.map(m=>{const ss=m.schools.map(id=>data.schools.find(s=>s.id===id)).filter(Boolean);return `<tr><td>${fmt(m.date)}</td><td>${esc(m.meal)}</td><td>${esc(m.carb)} • ${esc(m.protein)} • ${esc(m.vegetable||'-')} • ${esc(m.fruit||'-')}</td><td>${ss.length}</td><td><b>${ss.reduce((a,s)=>a+Number(s.students||0),0)}</b></td></tr>`}).join('')}</tbody></table>`:'<div class="empty">Belum ada data.</div>'}
+
+document.getElementById('datePicker').onchange=e=>{selectedDate=e.target.value;renderAll()};document.getElementById('prevDay').onclick=()=>{selectedDate=addDays(selectedDate,-1);renderAll()};document.getElementById('nextDay').onclick=()=>{selectedDate=addDays(selectedDate,1);renderAll()};document.getElementById('weekStart').onchange=renderWeek;
+function showMenu(){renderChecks();const f=document.getElementById('menuForm');f.date.value=selectedDate;openModal('menuModal')}
+document.getElementById('addMenuBtn').onclick=showMenu;document.getElementById('addMenuBtn2').onclick=showMenu;document.getElementById('addSchoolBtn').onclick=()=>openModal('schoolModal');
+document.getElementById('schoolForm').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);data.schools.push({id:'s'+Date.now(),name:f.get('name'),students:Number(f.get('students')),pic:f.get('pic'),phone:f.get('phone'),notes:f.get('notes'),active:f.get('active')==='yes'});save();e.target.reset();closeModal('schoolModal');renderAll();renderSchools();};
+document.getElementById('menuForm').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);const schools=f.getAll('schools');if(!schools.length){alert('Pilih minimal satu sekolah.');return}data.menus.push({id:'m'+Date.now(),date:f.get('date'),meal:f.get('meal'),carb:f.get('carb'),protein:f.get('protein'),vegetable:f.get('vegetable'),fruit:f.get('fruit'),notes:f.get('notes'),schools,status:{}});save();selectedDate=f.get('date');e.target.reset();closeModal('menuModal');renderAll();renderWeek();};
+document.getElementById('seedBtn').onclick=()=>{if(confirm('Reset ke data demo awal?')){data=seed();save();selectedDate=todayISO();renderAll();}};
+document.getElementById('exportBtn').onclick=()=>{const header=['Tanggal','Jenis Makan','Karbohidrat','Lauk','Sayur','Buah','Sekolah','Total Porsi'];const rows=data.menus.map(m=>{const ss=m.schools.map(id=>data.schools.find(s=>s.id===id)).filter(Boolean);return [m.date,m.meal,m.carb,m.protein,m.vegetable,m.fruit,ss.map(s=>s.name).join(' | '),ss.reduce((a,s)=>a+Number(s.students||0),0)]});const csv=[header,...rows].map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rekap-catering-sekolah.csv';a.click();URL.revokeObjectURL(a.href)};
+renderAll();
+</script>
+</body>
+</html>
