@@ -3,30 +3,54 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Catering Sekolah - Daily Menu Planner</title>
+  <title>Catering Sekolah - Daily Menu Planner & Laporan PDF</title>
+  <!-- jsPDF & AutoTable CDN for PDF Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.autotable.min.js"></script>
   <style>
     :root{
       --bg:#f7f8fa;--card:#fff;--text:#17202a;--muted:#697386;--line:#e8ebf0;
-      --primary:#2563eb;--primary2:#eaf1ff;--good:#0f9d6c;--warn:#d97706;--danger:#dc2626;
+      --primary:#2563eb;--primary2:#eaf1ff;--primary-dark:#1d4ed8;--good:#0f9d6c;--good-bg:#ecfdf5;--warn:#d97706;--warn-bg:#fffbeb;--danger:#dc2626;
       --shadow:0 10px 30px rgba(16,24,40,.06);--radius:18px;
     }
     *{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text)}
     button,input,select,textarea{font:inherit}.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
     aside{background:#111827;color:#fff;padding:24px 18px;position:sticky;top:0;height:100vh}
     .brand{display:flex;gap:12px;align-items:center;margin-bottom:28px}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#60a5fa,#2563eb);display:grid;place-items:center;font-size:22px}.brand h1{font-size:16px;margin:0}.brand p{font-size:12px;color:#9ca3af;margin:3px 0 0}
-    nav{display:grid;gap:8px}.navbtn{border:0;background:transparent;color:#cbd5e1;padding:12px 14px;border-radius:12px;text-align:left;cursor:pointer}.navbtn.active,.navbtn:hover{background:#1f2937;color:#fff}.footnote{position:absolute;bottom:20px;left:18px;right:18px;font-size:11px;color:#94a3b8;line-height:1.5}
+    nav{display:grid;gap:8px}.navbtn{border:0;background:transparent;color:#cbd5e1;padding:12px 14px;border-radius:12px;text-align:left;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:10px}.navbtn.active,.navbtn:hover{background:#1f2937;color:#fff}.footnote{position:absolute;bottom:20px;left:18px;right:18px;font-size:11px;color:#94a3b8;line-height:1.5}
     main{padding:28px;max-width:1500px;width:100%;margin:auto}.topbar{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}.topbar h2{margin:0;font-size:26px}.topbar p{margin:6px 0 0;color:var(--muted)}
-    .actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:#fff;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:650}.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}.btn.danger{color:var(--danger)}
-    .grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}.stat .label{color:var(--muted);font-size:13px}.stat .value{font-size:28px;font-weight:800;margin-top:8px}.stat .hint{font-size:12px;margin-top:5px;color:var(--muted)}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.btn{border:1px solid var(--line);background:#fff;padding:10px 16px;border-radius:12px;cursor:pointer;font-weight:650;display:inline-flex;align-items:center;gap:8px;transition:all .15s ease}.btn:hover{background:#f8fafc;border-color:#cbd5e1}.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}.btn.primary:hover{background:var(--primary-dark)} .btn.danger{color:var(--danger)}
+    .btn-pdf{background:#dc2626 !important;border-color:#dc2626 !important;color:#fff !important;box-shadow:0 4px 12px rgba(220,38,38,.25)}.btn-pdf:hover{background:#b91c1c !important}
+    .grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}.stat .label{color:var(--muted);font-size:13px}.stat .value{font-size:28px;font-weight:800;margin-top:8px;color:var(--text)}.stat .hint{font-size:12px;margin-top:5px;color:var(--muted)}
     .layout{grid-template-columns:1.45fr .85fr}.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.section-title h3{margin:0;font-size:17px}.section-title span{font-size:12px;color:var(--muted)}
     .datebar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}.datebar input{border:1px solid var(--line);padding:9px 11px;border-radius:11px;background:#fff}
     .school-card{border:1px solid var(--line);border-radius:15px;padding:14px;margin-bottom:12px;background:#fff}.school-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.school-name{font-weight:800}.school-meta{font-size:12px;color:var(--muted);margin-top:4px}.pill{font-size:11px;padding:5px 8px;border-radius:99px;background:var(--primary2);color:var(--primary);font-weight:700}.meal{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px}.meal-title{font-weight:750;font-size:13px;margin-bottom:7px}.meal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mini{background:#f8fafc;border:1px solid #eef2f7;border-radius:10px;padding:9px}.mini b{display:block;font-size:12px}.mini span{font-size:12px;color:var(--muted)}
     .status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700}.dot{width:8px;height:8px;border-radius:50%;background:var(--good)}.dot.warn{background:var(--warn)}
-    table{width:100%;border-collapse:collapse}th,td{padding:12px 10px;text-align:left;border-bottom:1px solid var(--line);font-size:13px}th{font-size:12px;color:var(--muted);font-weight:700}tr:last-child td{border-bottom:0}.empty{padding:30px;text-align:center;color:var(--muted)}
+    .badge-status{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:700}.badge-status.ready{background:var(--good-bg);color:var(--good);border:1px solid #a7f3d0}.badge-status.prep{background:var(--warn-bg);color:var(--warn);border:1px solid #fde68a}
+    table{width:100%;border-collapse:collapse}th,td{padding:12px 10px;text-align:left;border-bottom:1px solid var(--line);font-size:13px}th{font-size:12px;color:var(--muted);font-weight:700;background:#f8fafc}tr:last-child td{border-bottom:0}.empty{padding:30px;text-align:center;color:var(--muted)}
     .view{display:none}.view.active{display:block}.modal{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;place-items:center;padding:18px;z-index:50}.modal.open{display:grid}.modal-card{width:min(720px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:20px;padding:20px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:700;color:#475569}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:10px}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.check{display:flex;gap:8px;align-items:center;border:1px solid var(--line);padding:9px;border-radius:10px}
     .week{display:grid;grid-template-columns:repeat(7,minmax(150px,1fr));gap:10px;overflow-x:auto}.day{min-width:150px;border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}.day .dname{font-weight:800;font-size:13px}.day .ddate{font-size:11px;color:var(--muted);margin-bottom:10px}.menu-chip{font-size:11px;padding:7px 8px;background:#f8fafc;border-radius:8px;margin-top:6px;line-height:1.4}
-    @media(max-width:1000px){.app{grid-template-columns:1fr}aside{height:auto;position:static;display:flex;align-items:center;gap:16px;padding:14px 16px}.brand{margin:0}.brand p,.footnote{display:none}nav{display:flex;overflow:auto}.navbtn{white-space:nowrap}.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}}
-    @media(max-width:620px){main{padding:16px}.topbar{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.checklist{grid-template-columns:1fr}.meal-grid{grid-template-columns:1fr}.stat .value{font-size:22px}}
+    
+    /* Rekap Filter Styles */
+    .filter-panel{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.2fr;gap:12px;align-items:end}
+    .preset-group{display:flex;gap:6px;flex-wrap:wrap}.preset-btn{padding:7px 11px;font-size:12px;border-radius:9px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:600}.preset-btn:hover{background:#f1f5f9}.preset-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+    .report-school-banner{margin-top:14px;padding:12px 16px;background:var(--primary2);border:1px solid #bfdbfe;border-radius:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:#1e40af}
+    .alert-special{background:#fffbeb;border:1px solid #fef3c7;color:#92400e;padding:6px 12px;border-radius:8px;font-size:12px;display:inline-flex;align-items:center;gap:6px}
+    
+    /* Print Styles */
+    @media print{
+      aside,.actions,.filter-panel,.preset-group,.datebar,.modal,.footnote,#seedBtn,#addMenuBtn,#addSchoolBtn{display:none !important}
+      body{background:#fff;color:#000}
+      .app{display:block}
+      main{padding:0;max-width:100%}
+      .card{box-shadow:none;border:1px solid #ccc}
+      .view{display:none !important}
+      #reports.view{display:block !important}
+      .layout{grid-template-columns:1fr !important}
+    }
+
+    @media(max-width:1000px){.app{grid-template-columns:1fr}aside{height:auto;position:static;display:flex;align-items:center;gap:16px;padding:14px 16px}.brand{margin:0}.brand p,.footnote{display:none}nav{display:flex;overflow:auto}.navbtn{white-space:nowrap}.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.filter-panel{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:620px){main{padding:16px}.topbar{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.checklist{grid-template-columns:1fr}.meal-grid{grid-template-columns:1fr}.stat .value{font-size:22px}.filter-panel{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -34,17 +58,27 @@
   <aside>
     <div class="brand"><div class="logo">🍱</div><div><h1>Catering Sekolah</h1><p>Menu & distribusi harian</p></div></div>
     <nav>
-      <button class="navbtn active" data-view="dashboard">Dashboard</button>
-      <button class="navbtn" data-view="calendar">Kalender Menu</button>
-      <button class="navbtn" data-view="schools">Sekolah</button>
-      <button class="navbtn" data-view="reports">Rekap</button>
+      <button class="navbtn active" data-view="dashboard"><span>📊</span> Dashboard</button>
+      <button class="navbtn" data-view="calendar"><span>📅</span> Kalender Menu</button>
+      <button class="navbtn" data-view="schools"><span>🏫</span> Data Sekolah</button>
+      <button class="navbtn" data-view="reports"><span>📄</span> Rekap & PDF</button>
     </nav>
-    <div class="footnote">MVP lokal • data tersimpan di browser perangkat ini.</div>
+    <div class="footnote">MVP Catering Sekolah • Data tersimpan lokal di browser.</div>
   </aside>
 
   <main>
+    <!-- DASHBOARD VIEW -->
     <section id="dashboard" class="view active">
-      <div class="topbar"><div><h2>Dashboard Catering</h2><p>Atur menu, porsi, dan kesiapan distribusi per sekolah.</p></div><div class="actions"><button class="btn" id="seedBtn">Reset Demo</button><button class="btn primary" id="addMenuBtn">+ Buat Menu</button></div></div>
+      <div class="topbar">
+        <div>
+          <h2>Dashboard Catering</h2>
+          <p>Atur menu, porsi, dan kesiapan distribusi per sekolah.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" id="seedBtn">Reset Demo</button>
+          <button class="btn primary" id="addMenuBtn">+ Buat Menu</button>
+        </div>
+      </div>
       <div class="grid stats">
         <div class="card stat"><div class="label">Sekolah Aktif</div><div class="value" id="statSchools">0</div><div class="hint">Lokasi penerima catering</div></div>
         <div class="card stat"><div class="label">Total Porsi Hari Ini</div><div class="value" id="statPortions">0</div><div class="hint">Akumulasi seluruh sekolah</div></div>
@@ -59,104 +93,1053 @@
           <div id="dailyList"></div>
         </div>
         <div class="card">
-          <div class="section-title"><h3>Ringkasan Operasional</h3><span>Hari terpilih</span></div>
+          <div class="section-title"><h3>Ringkasan Operasional Dapur</h3><span>Hari terpilih</span></div>
           <div id="opsSummary"></div>
         </div>
       </div>
     </section>
 
+    <!-- CALENDAR VIEW -->
     <section id="calendar" class="view">
-      <div class="topbar"><div><h2>Kalender Menu</h2><p>Lihat rencana menu 7 hari dari tanggal yang dipilih.</p></div><button class="btn primary" id="addMenuBtn2">+ Buat Menu</button></div>
+      <div class="topbar">
+        <div>
+          <h2>Kalender Menu</h2>
+          <p>Lihat rencana menu 7 hari dari tanggal yang dipilih.</p>
+        </div>
+        <button class="btn primary" id="addMenuBtn2">+ Buat Menu</button>
+      </div>
       <div class="card"><div class="datebar"><input type="date" id="weekStart"></div><div class="week" id="weekGrid"></div></div>
     </section>
 
+    <!-- SCHOOLS VIEW -->
     <section id="schools" class="view">
-      <div class="topbar"><div><h2>Data Sekolah</h2><p>Kelola sekolah, jumlah siswa, kontak PIC, dan kebutuhan khusus.</p></div><button class="btn primary" id="addSchoolBtn">+ Tambah Sekolah</button></div>
+      <div class="topbar">
+        <div>
+          <h2>Data Sekolah</h2>
+          <p>Kelola sekolah, jumlah siswa, kontak PIC, dan kebutuhan khusus / alergi.</p>
+        </div>
+        <button class="btn primary" id="addSchoolBtn">+ Tambah Sekolah</button>
+      </div>
       <div class="card"><div id="schoolsTable"></div></div>
     </section>
 
+    <!-- REKAP & PDF REPORTS VIEW -->
     <section id="reports" class="view">
-      <div class="topbar"><div><h2>Rekap Catering</h2><p>Rekap sederhana untuk operasional dan pembelian bahan.</p></div><button class="btn" id="exportBtn">Export CSV</button></div>
-      <div class="card"><div class="section-title"><h3>Rekap Menu</h3><span>Semua jadwal</span></div><div id="reportsTable"></div></div>
+      <div class="topbar">
+        <div>
+          <h2>Rekap & Laporan Catering</h2>
+          <p>Filter rekap catering per sekolah dalam periode tertentu untuk unduh dokumen PDF atau CSV.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" id="printReportBtn">🖨️ Cetak</button>
+          <button class="btn" id="exportBtn">📊 Export CSV</button>
+          <button class="btn primary btn-pdf" id="downloadPdfBtn">📥 Download PDF Rekap</button>
+        </div>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="card" style="margin-bottom: 18px;">
+        <div class="section-title">
+          <h3>Filter Rekapitulasi</h3>
+          <span>Tentukan sekolah & rentang tanggal laporan</span>
+        </div>
+        <div class="filter-panel">
+          <div class="field">
+            <label>Pilih Sekolah</label>
+            <select id="reportSchoolSelect">
+              <option value="all">Semua Sekolah (Rekap Gabungan)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Dari Tanggal (Mulai)</label>
+            <input type="date" id="reportStartDate">
+          </div>
+          <div class="field">
+            <label>Sampai Tanggal (Selesai)</label>
+            <input type="date" id="reportEndDate">
+          </div>
+          <div class="field">
+            <label>Preset Periode</label>
+            <div class="preset-group">
+              <button type="button" class="preset-btn" data-preset="today">Hari Ini</button>
+              <button type="button" class="preset-btn active" data-preset="7days">7 Hari</button>
+              <button type="button" class="preset-btn" data-preset="month">Bulan Ini</button>
+              <button type="button" class="preset-btn" data-preset="all">Semua</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="reportSchoolMetaBanner" class="report-school-banner" style="display:none;">
+          <!-- Dynamically filled with PIC and allergy information -->
+        </div>
+      </div>
+
+      <!-- Report Stat Highlights -->
+      <div class="grid stats" id="reportStatsGrid">
+        <div class="card stat">
+          <div class="label">Hari Pengiriman</div>
+          <div class="value" id="repStatDays">0</div>
+          <div class="hint">Hari dengan jadwal menu</div>
+        </div>
+        <div class="card stat">
+          <div class="label">Total Akumulasi Porsi</div>
+          <div class="value" id="repStatPortions">0</div>
+          <div class="hint" id="repStatPortionsHint">Porsi dalam periode terpilih</div>
+        </div>
+        <div class="card stat">
+          <div class="label">Rata-rata Porsi/Hari</div>
+          <div class="value" id="repStatAvg">0</div>
+          <div class="hint">Porsi rata-rata per hari aktif</div>
+        </div>
+        <div class="card stat">
+          <div class="label">Kesiapan Distribusi</div>
+          <div class="value" id="repStatReady">0%</div>
+          <div class="hint" id="repStatReadyHint">0 dari 0 siap kirim</div>
+        </div>
+      </div>
+
+      <!-- Preview Tables Layout -->
+      <div class="grid layout">
+        <div class="card">
+          <div class="section-title">
+            <h3 id="reportTableTitle">Daftar Jadwal Menu & Distribusi</h3>
+            <span id="reportCountBadge">0 jadwal ditemukan</span>
+          </div>
+          <div style="overflow-x: auto;">
+            <div id="reportsTable"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">
+            <h3>Ringkasan Bahan & Lauk</h3>
+            <span>Total kebutuhan dapur periode ini</span>
+          </div>
+          <div style="overflow-x: auto;">
+            <div id="reportsOpsTable"></div>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 </div>
 
-<div class="modal" id="schoolModal"><div class="modal-card"><div class="section-title"><h3>Tambah Sekolah</h3><button class="btn" onclick="closeModal('schoolModal')">✕</button></div>
-<form id="schoolForm" class="form-grid">
-<div class="field"><label>Nama Sekolah</label><input name="name" required placeholder="SDN 1 Palu"></div>
-<div class="field"><label>Jumlah Siswa/Porsi</label><input name="students" type="number" min="1" required placeholder="150"></div>
-<div class="field"><label>Nama PIC</label><input name="pic" placeholder="Nama penanggung jawab"></div>
-<div class="field"><label>No. WhatsApp</label><input name="phone" placeholder="08xxxxxxxxxx"></div>
-<div class="field full"><label>Catatan kebutuhan khusus</label><textarea name="notes" rows="3" placeholder="Contoh: 2 siswa alergi telur, 1 tanpa susu"></textarea></div>
-<div class="field"><label>Status</label><select name="active"><option value="yes">Aktif</option><option value="no">Nonaktif</option></select></div>
-<div class="modal-actions field full"><button type="button" class="btn" onclick="closeModal('schoolModal')">Batal</button><button class="btn primary">Simpan Sekolah</button></div>
-</form></div></div>
+<!-- MODALS -->
+<div class="modal" id="schoolModal">
+  <div class="modal-card">
+    <div class="section-title"><h3>Tambah Sekolah</h3><button class="btn" onclick="closeModal('schoolModal')">✕</button></div>
+    <form id="schoolForm" class="form-grid">
+      <div class="field"><label>Nama Sekolah</label><input name="name" required placeholder="SDN 1 Palu"></div>
+      <div class="field"><label>Jumlah Siswa/Porsi Harian</label><input name="students" type="number" min="1" required placeholder="150"></div>
+      <div class="field"><label>Nama PIC (Penanggung Jawab)</label><input name="pic" placeholder="Nama penanggung jawab"></div>
+      <div class="field"><label>No. WhatsApp PIC</label><input name="phone" placeholder="08xxxxxxxxxx"></div>
+      <div class="field full"><label>Catatan kebutuhan khusus / Alergi Siswa</label><textarea name="notes" rows="3" placeholder="Contoh: 2 siswa alergi telur, 1 tanpa susu"></textarea></div>
+      <div class="field"><label>Status</label><select name="active"><option value="yes">Aktif</option><option value="no">Nonaktif</option></select></div>
+      <div class="modal-actions field full"><button type="button" class="btn" onclick="closeModal('schoolModal')">Batal</button><button class="btn primary">Simpan Sekolah</button></div>
+    </form>
+  </div>
+</div>
 
-<div class="modal" id="menuModal"><div class="modal-card"><div class="section-title"><h3>Buat Menu Harian</h3><button class="btn" onclick="closeModal('menuModal')">✕</button></div>
-<form id="menuForm" class="form-grid">
-<div class="field"><label>Tanggal</label><input name="date" type="date" required></div>
-<div class="field"><label>Jenis Makan</label><select name="meal"><option>Makan Siang</option><option>Sarapan</option><option>Snack</option></select></div>
-<div class="field"><label>Karbohidrat</label><input name="carb" required placeholder="Nasi putih"></div>
-<div class="field"><label>Lauk Utama</label><input name="protein" required placeholder="Ayam kecap"></div>
-<div class="field"><label>Sayur</label><input name="vegetable" placeholder="Tumis wortel buncis"></div>
-<div class="field"><label>Buah / Tambahan</label><input name="fruit" placeholder="Pisang"></div>
-<div class="field full"><label>Catatan dapur</label><textarea name="notes" rows="2" placeholder="Contoh: saus dipisah, level pedas 0"></textarea></div>
-<div class="field full"><label>Diterapkan ke sekolah</label><div id="schoolChecks" class="checklist"></div></div>
-<div class="modal-actions field full"><button type="button" class="btn" onclick="closeModal('menuModal')">Batal</button><button class="btn primary">Simpan Menu</button></div>
-</form></div></div>
+<div class="modal" id="menuModal">
+  <div class="modal-card">
+    <div class="section-title"><h3>Buat Menu Harian</h3><button class="btn" onclick="closeModal('menuModal')">✕</button></div>
+    <form id="menuForm" class="form-grid">
+      <div class="field"><label>Tanggal</label><input name="date" type="date" required></div>
+      <div class="field"><label>Jenis Makan</label><select name="meal"><option>Makan Siang</option><option>Sarapan</option><option>Snack</option></select></div>
+      <div class="field"><label>Karbohidrat</label><input name="carb" required placeholder="Nasi putih"></div>
+      <div class="field"><label>Lauk Utama</label><input name="protein" required placeholder="Ayam kecap"></div>
+      <div class="field"><label>Sayur</label><input name="vegetable" placeholder="Tumis wortel buncis"></div>
+      <div class="field"><label>Buah / Tambahan</label><input name="fruit" placeholder="Pisang"></div>
+      <div class="field full"><label>Catatan Dapur</label><textarea name="notes" rows="2" placeholder="Contoh: saus dipisah, level pedas 0"></textarea></div>
+      <div class="field full"><label>Diterapkan ke Sekolah</label><div id="schoolChecks" class="checklist"></div></div>
+      <div class="modal-actions field full"><button type="button" class="btn" onclick="closeModal('menuModal')">Batal</button><button class="btn primary">Simpan Menu</button></div>
+    </form>
+  </div>
+</div>
 
 <script>
-const KEY='school_catering_mvp_v1';
-const todayISO=()=>new Date().toISOString().slice(0,10);
-const addDays=(iso,n)=>{const d=new Date(iso+'T00:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
-const fmt=iso=>new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date(iso+'T00:00:00'));
-const seed=()=>({
- schools:[
-  {id:'s1',name:'SDN Inpres Birobuli',students:180,pic:'Ibu Rina',phone:'0812xxxx1111',notes:'2 siswa alergi telur',active:true},
-  {id:'s2',name:'SD Islam Terpadu Palu',students:145,pic:'Pak Arif',phone:'0812xxxx2222',notes:'5 porsi tanpa susu',active:true},
-  {id:'s3',name:'TK Ceria Palu',students:72,pic:'Ibu Maya',phone:'0812xxxx3333',notes:'Porsi anak usia dini',active:true}
- ],
- menus:[
-  {id:'m1',date:todayISO(),meal:'Makan Siang',carb:'Nasi putih',protein:'Ayam kecap',vegetable:'Tumis wortel buncis',fruit:'Pisang',notes:'Tidak pedas',schools:['s1','s2','s3'],status:{s1:'ready',s2:'prep',s3:'ready'}},
-  {id:'m2',date:addDays(todayISO(),1),meal:'Makan Siang',carb:'Nasi kuning',protein:'Ikan fillet saus tomat',vegetable:'Capcay',fruit:'Semangka',notes:'Saus terpisah',schools:['s1','s2','s3'],status:{}},
-  {id:'m3',date:addDays(todayISO(),2),meal:'Makan Siang',carb:'Nasi putih',protein:'Daging semur',vegetable:'Sup sayur',fruit:'Jeruk',notes:'',schools:['s1','s2'],status:{}}
- ]
+const KEY = 'school_catering_mvp_v1';
+const todayISO = () => new Date().toISOString().slice(0, 10);
+const addDays = (iso, n) => {
+  const d = new Date(iso + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+const fmt = iso => new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso + 'T00:00:00'));
+const fmtShort = iso => new Intl.DateTimeFormat('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(iso + 'T00:00:00'));
+const fmtDateOnly = iso => new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso + 'T00:00:00'));
+
+const seed = () => ({
+  schools: [
+    { id: 's1', name: 'SDN Inpres Birobuli', students: 180, pic: 'Ibu Rina', phone: '081244551111', notes: '2 siswa alergi telur', active: true },
+    { id: 's2', name: 'SD Islam Terpadu Palu', students: 145, pic: 'Pak Arif', phone: '081244552222', notes: '5 porsi tanpa susu sapi', active: true },
+    { id: 's3', name: 'TK Ceria Palu', students: 72, pic: 'Ibu Maya', phone: '081244553333', notes: 'Porsi balita / anak usia dini', active: true }
+  ],
+  menus: [
+    { id: 'm1', date: todayISO(), meal: 'Makan Siang', carb: 'Nasi putih', protein: 'Ayam kecap', vegetable: 'Tumis wortel buncis', fruit: 'Pisang', notes: 'Tidak pedas', schools: ['s1', 's2', 's3'], status: { s1: 'ready', s2: 'prep', s3: 'ready' } },
+    { id: 'm2', date: addDays(todayISO(), 1), meal: 'Makan Siang', carb: 'Nasi kuning', protein: 'Ikan fillet saus tomat', vegetable: 'Capcay kuah', fruit: 'Semangka', notes: 'Saus asam manis terpisah', schools: ['s1', 's2', 's3'], status: {} },
+    { id: 'm3', date: addDays(todayISO(), 2), meal: 'Makan Siang', carb: 'Nasi putih', protein: 'Daging sapi semur', vegetable: 'Sup sayuran baso', fruit: 'Jeruk manis', notes: 'Daging dipotong dadu empuk', schools: ['s1', 's2'], status: {} },
+    { id: 'm4', date: addDays(todayISO(), 3), meal: 'Makan Siang', carb: 'Nasi uduk', protein: 'Ayam goreng lengkuas', vegetable: 'Lalapan timun & tempe', fruit: 'Melon', notes: 'Tanpa sambal untuk TK', schools: ['s1', 's2', 's3'], status: {} },
+    { id: 'm5', date: addDays(todayISO(), 4), meal: 'Makan Siang', carb: 'Nasi putih', protein: 'Telur balado manis', vegetable: 'Sayur bening bayam jagung', fruit: 'Pepaya', notes: 'Menu pengganti telur untuk yang alergi', schools: ['s1', 's3'], status: {} }
+  ]
 });
-let data=JSON.parse(localStorage.getItem(KEY)||'null')||seed();
-let selectedDate=todayISO();
-const save=()=>localStorage.setItem(KEY,JSON.stringify(data));
-const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 
-function switchView(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.view===id));if(id==='calendar')renderWeek();if(id==='schools')renderSchools();if(id==='reports')renderReports();}
-document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
-function openModal(id){document.getElementById(id).classList.add('open')}window.closeModal=id=>document.getElementById(id).classList.remove('open');
+let data = JSON.parse(localStorage.getItem(KEY) || 'null') || seed();
+let selectedDate = todayISO();
 
-function renderAll(){
- document.getElementById('datePicker').value=selectedDate;document.getElementById('weekStart').value=selectedDate;document.getElementById('dayLabel').textContent=fmt(selectedDate);
- const activeSchools=data.schools.filter(s=>s.active);const menus=data.menus.filter(m=>m.date===selectedDate);
- let portions=0,ready=0;activeSchools.forEach(s=>{if(menus.some(m=>m.schools.includes(s.id)))portions+=Number(s.students||0);if(menus.some(m=>m.status?.[s.id]==='ready'))ready++});
- document.getElementById('statSchools').textContent=activeSchools.length;document.getElementById('statPortions').textContent=portions.toLocaleString('id-ID');document.getElementById('statMenus').textContent=menus.length;document.getElementById('statReady').textContent=ready;
- renderDaily();renderOps();renderChecks();
+// Rekap filter state
+let reportFilter = {
+  schoolId: 'all',
+  startDate: todayISO(),
+  endDate: addDays(todayISO(), 6)
+};
+
+const save = () => localStorage.setItem(KEY, JSON.stringify(data));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+
+function switchView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id));
+  document.querySelectorAll('.navbtn').forEach(b => b.classList.toggle('active', b.dataset.view === id));
+  if (id === 'calendar') renderWeek();
+  if (id === 'schools') renderSchools();
+  if (id === 'reports') renderReports();
 }
-function renderDaily(){const wrap=document.getElementById('dailyList');const menus=data.menus.filter(m=>m.date===selectedDate);if(!menus.length){wrap.innerHTML='<div class="empty">Belum ada menu untuk tanggal ini.</div>';return}
- let html='';menus.forEach(m=>{m.schools.forEach(sid=>{const s=data.schools.find(x=>x.id===sid);if(!s||!s.active)return;const st=m.status?.[sid]||'prep';html+=`<div class="school-card"><div class="school-head"><div><div class="school-name">${esc(s.name)}</div><div class="school-meta">${s.students} porsi • PIC ${esc(s.pic||'-')}</div></div><button class="btn" onclick="toggleStatus('${m.id}','${sid}')"><span class="status"><span class="dot ${st==='ready'?'':'warn'}"></span>${st==='ready'?'Siap kirim':'Persiapan'}</span></button></div><div class="meal"><div class="meal-title">${esc(m.meal)}</div><div class="meal-grid"><div class="mini"><b>Karbohidrat</b><span>${esc(m.carb)}</span></div><div class="mini"><b>Lauk</b><span>${esc(m.protein)}</span></div><div class="mini"><b>Sayur</b><span>${esc(m.vegetable||'-')}</span></div><div class="mini"><b>Buah/Tambahan</b><span>${esc(m.fruit||'-')}</span></div></div>${s.notes?`<div class="school-meta" style="margin-top:9px">⚠ ${esc(s.notes)}</div>`:''}</div></div>`})});wrap.innerHTML=html||'<div class="empty">Belum ada sekolah aktif untuk menu ini.</div>'}
-window.toggleStatus=(mid,sid)=>{const m=data.menus.find(x=>x.id===mid);m.status=m.status||{};m.status[sid]=m.status[sid]==='ready'?'prep':'ready';save();renderAll();};
-function renderOps(){const menus=data.menus.filter(m=>m.date===selectedDate);const counts={};menus.forEach(m=>m.schools.forEach(sid=>{const s=data.schools.find(x=>x.id===sid);if(!s)return;['carb','protein','vegetable','fruit'].forEach(k=>{if(m[k])counts[m[k]]=(counts[m[k]]||0)+Number(s.students||0)})}));const rows=Object.entries(counts).sort((a,b)=>b[1]-a[1]);document.getElementById('opsSummary').innerHTML=rows.length?`<table><thead><tr><th>Komponen</th><th>Estimasi porsi</th></tr></thead><tbody>${rows.map(([k,v])=>`<tr><td>${esc(k)}</td><td><b>${v.toLocaleString('id-ID')}</b></td></tr>`).join('')}</tbody></table>`:'<div class="empty">Belum ada kebutuhan bahan untuk tanggal ini.</div>'}
-function renderChecks(){document.getElementById('schoolChecks').innerHTML=data.schools.filter(s=>s.active).map(s=>`<label class="check"><input type="checkbox" name="schools" value="${s.id}" checked> <span>${esc(s.name)} <small>(${s.students} porsi)</small></span></label>`).join('')}
-function renderSchools(){const w=document.getElementById('schoolsTable');w.innerHTML=data.schools.length?`<table><thead><tr><th>Sekolah</th><th>Porsi</th><th>PIC</th><th>Kebutuhan khusus</th><th>Status</th><th></th></tr></thead><tbody>${data.schools.map(s=>`<tr><td><b>${esc(s.name)}</b></td><td>${s.students}</td><td>${esc(s.pic||'-')}<br><span style="color:var(--muted)">${esc(s.phone||'')}</span></td><td>${esc(s.notes||'-')}</td><td>${s.active?'Aktif':'Nonaktif'}</td><td><button class="btn danger" onclick="removeSchool('${s.id}')">Hapus</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty">Belum ada data sekolah.</div>'}
-window.removeSchool=id=>{if(!confirm('Hapus sekolah ini?'))return;data.schools=data.schools.filter(s=>s.id!==id);data.menus.forEach(m=>m.schools=m.schools.filter(x=>x!==id));save();renderAll();renderSchools();};
-function renderWeek(){const base=document.getElementById('weekStart').value||selectedDate;document.getElementById('weekGrid').innerHTML=Array.from({length:7},(_,i)=>{const d=addDays(base,i);const menus=data.menus.filter(m=>m.date===d);return `<div class="day"><div class="dname">${new Intl.DateTimeFormat('id-ID',{weekday:'short'}).format(new Date(d+'T00:00:00'))}</div><div class="ddate">${new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'short'}).format(new Date(d+'T00:00:00'))}</div>${menus.length?menus.map(m=>`<div class="menu-chip"><b>${esc(m.meal)}</b><br>${esc(m.carb)} • ${esc(m.protein)}<br><span style="color:var(--muted)">${m.schools.length} sekolah</span></div>`).join(''):'<div class="menu-chip">Belum ada menu</div>'}</div>`}).join('')}
-function renderReports(){const rows=data.menus.slice().sort((a,b)=>a.date.localeCompare(b.date));document.getElementById('reportsTable').innerHTML=rows.length?`<table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Menu</th><th>Sekolah</th><th>Total Porsi</th></tr></thead><tbody>${rows.map(m=>{const ss=m.schools.map(id=>data.schools.find(s=>s.id===id)).filter(Boolean);return `<tr><td>${fmt(m.date)}</td><td>${esc(m.meal)}</td><td>${esc(m.carb)} • ${esc(m.protein)} • ${esc(m.vegetable||'-')} • ${esc(m.fruit||'-')}</td><td>${ss.length}</td><td><b>${ss.reduce((a,s)=>a+Number(s.students||0),0)}</b></td></tr>`}).join('')}</tbody></table>`:'<div class="empty">Belum ada data.</div>'}
+document.querySelectorAll('.navbtn').forEach(b => b.onclick = () => switchView(b.dataset.view));
 
-document.getElementById('datePicker').onchange=e=>{selectedDate=e.target.value;renderAll()};document.getElementById('prevDay').onclick=()=>{selectedDate=addDays(selectedDate,-1);renderAll()};document.getElementById('nextDay').onclick=()=>{selectedDate=addDays(selectedDate,1);renderAll()};document.getElementById('weekStart').onchange=renderWeek;
-function showMenu(){renderChecks();const f=document.getElementById('menuForm');f.date.value=selectedDate;openModal('menuModal')}
-document.getElementById('addMenuBtn').onclick=showMenu;document.getElementById('addMenuBtn2').onclick=showMenu;document.getElementById('addSchoolBtn').onclick=()=>openModal('schoolModal');
-document.getElementById('schoolForm').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);data.schools.push({id:'s'+Date.now(),name:f.get('name'),students:Number(f.get('students')),pic:f.get('pic'),phone:f.get('phone'),notes:f.get('notes'),active:f.get('active')==='yes'});save();e.target.reset();closeModal('schoolModal');renderAll();renderSchools();};
-document.getElementById('menuForm').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);const schools=f.getAll('schools');if(!schools.length){alert('Pilih minimal satu sekolah.');return}data.menus.push({id:'m'+Date.now(),date:f.get('date'),meal:f.get('meal'),carb:f.get('carb'),protein:f.get('protein'),vegetable:f.get('vegetable'),fruit:f.get('fruit'),notes:f.get('notes'),schools,status:{}});save();selectedDate=f.get('date');e.target.reset();closeModal('menuModal');renderAll();renderWeek();};
-document.getElementById('seedBtn').onclick=()=>{if(confirm('Reset ke data demo awal?')){data=seed();save();selectedDate=todayISO();renderAll();}};
-document.getElementById('exportBtn').onclick=()=>{const header=['Tanggal','Jenis Makan','Karbohidrat','Lauk','Sayur','Buah','Sekolah','Total Porsi'];const rows=data.menus.map(m=>{const ss=m.schools.map(id=>data.schools.find(s=>s.id===id)).filter(Boolean);return [m.date,m.meal,m.carb,m.protein,m.vegetable,m.fruit,ss.map(s=>s.name).join(' | '),ss.reduce((a,s)=>a+Number(s.students||0),0)]});const csv=[header,...rows].map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rekap-catering-sekolah.csv';a.click();URL.revokeObjectURL(a.href)};
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+window.closeModal = id => document.getElementById(id).classList.remove('open');
+
+function renderAll() {
+  document.getElementById('datePicker').value = selectedDate;
+  document.getElementById('weekStart').value = selectedDate;
+  document.getElementById('dayLabel').textContent = fmt(selectedDate);
+
+  const activeSchools = data.schools.filter(s => s.active);
+  const menus = data.menus.filter(m => m.date === selectedDate);
+  let portions = 0, ready = 0;
+  activeSchools.forEach(s => {
+    if (menus.some(m => m.schools.includes(s.id))) portions += Number(s.students || 0);
+    if (menus.some(m => m.status?.[s.id] === 'ready')) ready++;
+  });
+
+  document.getElementById('statSchools').textContent = activeSchools.length;
+  document.getElementById('statPortions').textContent = portions.toLocaleString('id-ID');
+  document.getElementById('statMenus').textContent = menus.length;
+  document.getElementById('statReady').textContent = ready;
+
+  renderDaily();
+  renderOps();
+  renderChecks();
+  populateReportSchoolOptions();
+}
+
+function renderDaily() {
+  const wrap = document.getElementById('dailyList');
+  const menus = data.menus.filter(m => m.date === selectedDate);
+  if (!menus.length) {
+    wrap.innerHTML = '<div class="empty">Belum ada menu untuk tanggal ini.</div>';
+    return;
+  }
+  let html = '';
+  menus.forEach(m => {
+    m.schools.forEach(sid => {
+      const s = data.schools.find(x => x.id === sid);
+      if (!s || !s.active) return;
+      const st = m.status?.[sid] || 'prep';
+      html += `<div class="school-card">
+        <div class="school-head">
+          <div>
+            <div class="school-name">${esc(s.name)}</div>
+            <div class="school-meta">${s.students} porsi • PIC: ${esc(s.pic || '-')} (${esc(s.phone || '-')})</div>
+          </div>
+          <button class="btn" onclick="toggleStatus('${m.id}','${sid}')">
+            <span class="status"><span class="dot ${st === 'ready' ? '' : 'warn'}"></span>${st === 'ready' ? 'Siap kirim' : 'Persiapan'}</span>
+          </button>
+        </div>
+        <div class="meal">
+          <div class="meal-title">${esc(m.meal)} ${m.notes ? `<small style="font-weight:normal;color:var(--muted)">• ${esc(m.notes)}</small>` : ''}</div>
+          <div class="meal-grid">
+            <div class="mini"><b>Karbohidrat</b><span>${esc(m.carb)}</span></div>
+            <div class="mini"><b>Lauk Utama</b><span>${esc(m.protein)}</span></div>
+            <div class="mini"><b>Sayur</b><span>${esc(m.vegetable || '-')}</span></div>
+            <div class="mini"><b>Buah/Tambahan</b><span>${esc(m.fruit || '-')}</span></div>
+          </div>
+          ${s.notes ? `<div class="alert-special" style="margin-top:10px">⚠ <b>Kebutuhan Khusus:</b> ${esc(s.notes)}</div>` : ''}
+        </div>
+      </div>`;
+    });
+  });
+  wrap.innerHTML = html || '<div class="empty">Belum ada sekolah aktif untuk menu ini.</div>';
+}
+
+window.toggleStatus = (mid, sid) => {
+  const m = data.menus.find(x => x.id === mid);
+  if (!m) return;
+  m.status = m.status || {};
+  m.status[sid] = m.status[sid] === 'ready' ? 'prep' : 'ready';
+  save();
+  renderAll();
+  if (document.getElementById('reports').classList.contains('active')) {
+    renderReports();
+  }
+};
+
+function renderOps() {
+  const menus = data.menus.filter(m => m.date === selectedDate);
+  const counts = {};
+  menus.forEach(m => m.schools.forEach(sid => {
+    const s = data.schools.find(x => x.id === sid);
+    if (!s || !s.active) return;
+    ['carb', 'protein', 'vegetable', 'fruit'].forEach(k => {
+      if (m[k]) counts[m[k]] = (counts[m[k]] || 0) + Number(s.students || 0);
+    });
+  }));
+  const rows = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  document.getElementById('opsSummary').innerHTML = rows.length ?
+    `<table><thead><tr><th>Komponen Menu</th><th>Estimasi Porsi</th></tr></thead><tbody>${rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td><b>${v.toLocaleString('id-ID')}</b> porsi</td></tr>`).join('')}</tbody></table>`
+    : '<div class="empty">Belum ada kebutuhan bahan untuk tanggal ini.</div>';
+}
+
+function renderChecks() {
+  document.getElementById('schoolChecks').innerHTML = data.schools.filter(s => s.active).map(s =>
+    `<label class="check"><input type="checkbox" name="schools" value="${s.id}" checked> <span>${esc(s.name)} <small>(${s.students} porsi)</small></span></label>`
+  ).join('');
+}
+
+function renderSchools() {
+  const w = document.getElementById('schoolsTable');
+  w.innerHTML = data.schools.length ?
+    `<table><thead><tr><th>Nama Sekolah</th><th>Porsi/Hari</th><th>Kontak PIC</th><th>Kebutuhan Khusus / Alergi</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${data.schools.map(s => `<tr>
+      <td><b>${esc(s.name)}</b></td>
+      <td><span class="pill">${s.students} porsi</span></td>
+      <td>${esc(s.pic || '-')}<br><small style="color:var(--muted)">${esc(s.phone || '-')}</small></td>
+      <td>${s.notes ? `<span class="alert-special">⚠ ${esc(s.notes)}</span>` : '<span style="color:var(--muted)">-</span>'}</td>
+      <td><span class="badge-status ${s.active ? 'ready' : 'prep'}">${s.active ? 'Aktif' : 'Nonaktif'}</span></td>
+      <td><button class="btn danger" style="padding:6px 10px;font-size:12px" onclick="removeSchool('${s.id}')">Hapus</button></td>
+    </tr>`).join('')}</tbody></table>`
+    : '<div class="empty">Belum ada data sekolah.</div>';
+}
+
+window.removeSchool = id => {
+  if (!confirm('Hapus sekolah ini? Menu terkait juga akan diperbarui.')) return;
+  data.schools = data.schools.filter(s => s.id !== id);
+  data.menus.forEach(m => m.schools = m.schools.filter(x => x !== id));
+  save();
+  renderAll();
+  renderSchools();
+};
+
+function renderWeek() {
+  const base = document.getElementById('weekStart').value || selectedDate;
+  document.getElementById('weekGrid').innerHTML = Array.from({ length: 7 }, (_, i) => {
+    const d = addDays(base, i);
+    const menus = data.menus.filter(m => m.date === d);
+    return `<div class="day">
+      <div class="dname">${new Intl.DateTimeFormat('id-ID', { weekday: 'short' }).format(new Date(d + 'T00:00:00'))}</div>
+      <div class="ddate">${new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short' }).format(new Date(d + 'T00:00:00'))}</div>
+      ${menus.length ? menus.map(m => `<div class="menu-chip"><b>${esc(m.meal)}</b><br>${esc(m.carb)} • ${esc(m.protein)}<br><span style="color:var(--muted)">${m.schools.length} sekolah</span></div>`).join('') : '<div class="menu-chip" style="color:var(--muted)">Belum ada menu</div>'}
+    </div>`;
+  }).join('');
+}
+
+// ==================== REKAP & PDF SECTION LOGIC ====================
+
+function populateReportSchoolOptions() {
+  const select = document.getElementById('reportSchoolSelect');
+  if (!select) return;
+  const currentVal = reportFilter.schoolId;
+  let html = '<option value="all">Semua Sekolah (Rekap Gabungan)</option>';
+  data.schools.forEach(s => {
+    html += `<option value="${s.id}" ${s.id === currentVal ? 'selected' : ''}>${esc(s.name)} (${s.students} porsi)</option>`;
+  });
+  select.innerHTML = html;
+}
+
+function getFilteredReportData() {
+  const { schoolId, startDate, endDate } = reportFilter;
+  
+  // Get all menus within date range
+  const filteredMenus = data.menus.filter(m => {
+    if (startDate && m.date < startDate) return false;
+    if (endDate && m.date > endDate) return false;
+    if (schoolId !== 'all') {
+      return m.schools.includes(schoolId);
+    }
+    return true;
+  }).sort((a, b) => a.date.localeCompare(b.date));
+
+  // Flatten rows for display and PDF
+  const rows = [];
+  let totalPortions = 0;
+  let readyCount = 0;
+  let totalSlots = 0;
+  const uniqueDates = new Set();
+  const componentCounts = {};
+
+  filteredMenus.forEach(m => {
+    uniqueDates.add(m.date);
+    
+    // Schools for this menu
+    const targetSchoolIds = (schoolId === 'all') ? m.schools : m.schools.filter(id => id === schoolId);
+    
+    targetSchoolIds.forEach(sid => {
+      const sch = data.schools.find(s => s.id === sid);
+      if (!sch) return;
+      
+      const st = m.status?.[sid] || 'prep';
+      const portions = Number(sch.students || 0);
+      
+      totalSlots++;
+      if (st === 'ready') readyCount++;
+      totalPortions += portions;
+
+      // Count components
+      ['carb', 'protein', 'vegetable', 'fruit'].forEach(k => {
+        if (m[k]) {
+          componentCounts[m[k]] = componentCounts[m[k]] || { count: 0, type: k };
+          componentCounts[m[k]].count += portions;
+        }
+      });
+
+      rows.push({
+        menuId: m.id,
+        date: m.date,
+        meal: m.meal,
+        carb: m.carb,
+        protein: m.protein,
+        vegetable: m.vegetable || '-',
+        fruit: m.fruit || '-',
+        notes: m.notes || '-',
+        schoolId: sid,
+        schoolName: sch.name,
+        schoolPic: sch.pic || '-',
+        schoolPhone: sch.phone || '-',
+        schoolNotes: sch.notes || '',
+        portions: portions,
+        status: st
+      });
+    });
+  });
+
+  return {
+    rows,
+    filteredMenus,
+    totalPortions,
+    uniqueDaysCount: uniqueDates.size,
+    readyCount,
+    totalSlots,
+    componentCounts
+  };
+}
+
+function renderReports() {
+  // Sync filter inputs with state
+  const sel = document.getElementById('reportSchoolSelect');
+  if (sel) sel.value = reportFilter.schoolId;
+  document.getElementById('reportStartDate').value = reportFilter.startDate;
+  document.getElementById('reportEndDate').value = reportFilter.endDate;
+
+  const { rows, totalPortions, uniqueDaysCount, readyCount, totalSlots, componentCounts } = getFilteredReportData();
+  const isSingleSchool = reportFilter.schoolId !== 'all';
+  const selectedSchool = isSingleSchool ? data.schools.find(s => s.id === reportFilter.schoolId) : null;
+
+  // Render School Meta Banner
+  const metaBanner = document.getElementById('reportSchoolMetaBanner');
+  if (isSingleSchool && selectedSchool) {
+    metaBanner.style.display = 'flex';
+    metaBanner.innerHTML = `
+      <div>
+        <b>🏫 ${esc(selectedSchool.name)}</b> &nbsp;•&nbsp; 
+        PIC: <b>${esc(selectedSchool.pic || '-')}</b> (${esc(selectedSchool.phone || '-')}) &nbsp;•&nbsp; 
+        Porsi Rutin: <b>${selectedSchool.students} porsi/hari</b>
+      </div>
+      ${selectedSchool.notes ? `<div class="alert-special">⚠ <b>Catatan Khusus:</b> ${esc(selectedSchool.notes)}</div>` : ''}
+    `;
+  } else {
+    metaBanner.style.display = 'none';
+  }
+
+  // Update Summary Stats
+  document.getElementById('repStatDays').textContent = uniqueDaysCount;
+  document.getElementById('repStatPortions').textContent = totalPortions.toLocaleString('id-ID');
+  
+  const avgPortions = uniqueDaysCount > 0 ? Math.round(totalPortions / uniqueDaysCount) : 0;
+  document.getElementById('repStatAvg').textContent = avgPortions.toLocaleString('id-ID');
+  
+  const readyPct = totalSlots > 0 ? Math.round((readyCount / totalSlots) * 100) : 0;
+  document.getElementById('repStatReady').textContent = readyPct + '%';
+  document.getElementById('repStatReadyHint').textContent = `${readyCount} dari ${totalSlots} pengiriman siap`;
+
+  document.getElementById('reportCountBadge').textContent = `${rows.length} jadwal pengiriman`;
+
+  // Render Main Table
+  const tableWrap = document.getElementById('reportsTable');
+  if (!rows.length) {
+    tableWrap.innerHTML = '<div class="empty">Tidak ada jadwal catering pada periode dan filter sekolah yang dipilih.</div>';
+  } else {
+    let tableHtml = `<table>
+      <thead>
+        <tr>
+          <th>Tanggal & Hari</th>
+          ${!isSingleSchool ? '<th>Sekolah</th>' : ''}
+          <th>Jenis Makan</th>
+          <th>Rincian Menu (Karbo, Lauk, Sayur, Buah)</th>
+          <th>Porsi</th>
+          <th>Catatan / Alergi</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+    rows.forEach(r => {
+      tableHtml += `<tr>
+        <td><b>${fmtShort(r.date)}</b></td>
+        ${!isSingleSchool ? `<td><b>${esc(r.schoolName)}</b></td>` : ''}
+        <td><span class="pill">${esc(r.meal)}</span></td>
+        <td>
+          <b>${esc(r.carb)}</b> • ${esc(r.protein)}<br>
+          <small style="color:var(--muted)">Sayur: ${esc(r.vegetable)} | Buah: ${esc(r.fruit)}</small>
+        </td>
+        <td><b>${r.portions.toLocaleString('id-ID')}</b> porsi</td>
+        <td>
+          ${r.notes && r.notes !== '-' ? `<div>${esc(r.notes)}</div>` : ''}
+          ${r.schoolNotes ? `<div class="alert-special" style="margin-top:3px;font-size:11px">⚠ ${esc(r.schoolNotes)}</div>` : (!r.notes || r.notes === '-' ? '<span style="color:var(--muted)">-</span>' : '')}
+        </td>
+        <td><span class="badge-status ${r.status === 'ready' ? 'ready' : 'prep'}">${r.status === 'ready' ? 'Siap Kirim' : 'Persiapan'}</span></td>
+      </tr>`;
+    });
+
+    tableHtml += `</tbody>
+      <tfoot>
+        <tr style="background:#f1f5f9;font-weight:bold;">
+          <td>TOTAL</td>
+          ${!isSingleSchool ? '<td>-</td>' : ''}
+          <td>-</td>
+          <td>${uniqueDaysCount} Hari Pengiriman</td>
+          <td>${totalPortions.toLocaleString('id-ID')} Porsi</td>
+          <td>-</td>
+          <td>${readyCount}/${totalSlots} Siap</td>
+        </tr>
+      </tfoot>
+    </table>`;
+    tableWrap.innerHTML = tableHtml;
+  }
+
+  // Render Kitchen Ingredients / Components Table
+  const opsTableWrap = document.getElementById('reportsOpsTable');
+  const compEntries = Object.entries(componentCounts).sort((a, b) => b[1].count - a[1].count);
+  
+  if (!compEntries.length) {
+    opsTableWrap.innerHTML = '<div class="empty">Belum ada komponen menu.</div>';
+  } else {
+    const typeLabel = { carb: 'Karbohidrat', protein: 'Lauk Utama', vegetable: 'Sayur', fruit: 'Buah/Tambahan' };
+    let opsHtml = `<table>
+      <thead>
+        <tr>
+          <th>Komponen Menu</th>
+          <th>Kategori</th>
+          <th>Total Kebutuhan</th>
+        </tr>
+      </thead>
+      <tbody>`;
+    
+    compEntries.forEach(([name, info]) => {
+      opsHtml += `<tr>
+        <td><b>${esc(name)}</b></td>
+        <td><small style="color:var(--muted)">${typeLabel[info.type] || 'Menu'}</small></td>
+        <td><b>${info.count.toLocaleString('id-ID')}</b> porsi</td>
+      </tr>`;
+    });
+
+    opsHtml += `</tbody></table>`;
+    opsTableWrap.innerHTML = opsHtml;
+  }
+}
+
+// Preset Handlers
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const preset = btn.dataset.preset;
+    const now = todayISO();
+    
+    if (preset === 'today') {
+      reportFilter.startDate = now;
+      reportFilter.endDate = now;
+    } else if (preset === '7days') {
+      reportFilter.startDate = now;
+      reportFilter.endDate = addDays(now, 6);
+    } else if (preset === 'month') {
+      const d = new Date();
+      const firstDay = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().slice(0, 10);
+      const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().slice(0, 10);
+      reportFilter.startDate = firstDay;
+      reportFilter.endDate = lastDay;
+    } else if (preset === 'all') {
+      if (data.menus.length > 0) {
+        const sorted = data.menus.map(m => m.date).sort();
+        reportFilter.startDate = sorted[0];
+        reportFilter.endDate = sorted[sorted.length - 1];
+      } else {
+        reportFilter.startDate = now;
+        reportFilter.endDate = addDays(now, 30);
+      }
+    }
+    renderReports();
+  };
+});
+
+// Change Filter Listeners
+document.getElementById('reportSchoolSelect').onchange = e => {
+  reportFilter.schoolId = e.target.value;
+  renderReports();
+};
+document.getElementById('reportStartDate').onchange = e => {
+  reportFilter.startDate = e.target.value;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  renderReports();
+};
+document.getElementById('reportEndDate').onchange = e => {
+  reportFilter.endDate = e.target.value;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  renderReports();
+};
+
+// ==================== GENERATE PDF FUNCTION ====================
+function generatePDF() {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert('Library PDF sedang dimuat. Mohon pastikan koneksi internet aktif dan coba kembali.');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
+
+  const { rows, totalPortions, uniqueDaysCount, readyCount, totalSlots, componentCounts } = getFilteredReportData();
+
+  if (!rows.length) {
+    alert('Tidak ada data menu pada periode dan sekolah yang dipilih untuk dicetak.');
+    return;
+  }
+
+  const isSingleSchool = reportFilter.schoolId !== 'all';
+  const school = isSingleSchool ? data.schools.find(s => s.id === reportFilter.schoolId) : null;
+  const schoolName = isSingleSchool && school ? school.name : 'Seluruh Sekolah Penerima Catering';
+  const pic = isSingleSchool && school ? (school.pic || '-') : 'Koordinator Operasional Catering';
+  const phone = isSingleSchool && school ? (school.phone || '-') : '-';
+  const schoolNotes = isSingleSchool && school ? (school.notes || '-') : 'Rekapitulasi gabungan seluruh sekolah aktif.';
+
+  const startFormatted = fmtDateOnly(reportFilter.startDate);
+  const endFormatted = fmtDateOnly(reportFilter.endDate);
+  const periodText = (reportFilter.startDate === reportFilter.endDate) ? startFormatted : `${startFormatted} s/d ${endFormatted}`;
+  const printTimestamp = new Intl.DateTimeFormat('id-ID', { dateStyle: 'full', timeStyle: 'short' }).format(new Date());
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  let currentY = 14;
+
+  // 1. BRANDING HEADER
+  doc.setFillColor(37, 99, 235); // #2563eb
+  doc.rect(14, currentY, pageWidth - 28, 22, 'F');
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.text('CATERING SEKOLAH - LAPORAN REKAPITULASI', 20, currentY + 9);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9.5);
+  doc.text('Sistem Perencanaan Menu Harian & Distribusi Makanan Siswa', 20, currentY + 16);
+
+  currentY += 27;
+
+  // 2. META INFO BOX
+  doc.setFillColor(248, 250, 252);
+  doc.setDrawColor(226, 232, 240);
+  doc.roundedRect(14, currentY, pageWidth - 28, 32, 3, 3, 'FD');
+
+  doc.setTextColor(30, 41, 59);
+  doc.setFontSize(9);
+
+  // Column 1 (Left)
+  doc.setFont('helvetica', 'bold');
+  doc.text('Nama Sekolah / Mitra :', 18, currentY + 7);
+  doc.setFont('helvetica', 'normal');
+  doc.text(schoolName, 58, currentY + 7);
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Penanggung Jawab (PIC) :', 18, currentY + 14);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${pic} ${phone !== '-' ? `(${phone})` : ''}`, 58, currentY + 14);
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Kebutuhan Khusus/Alergi :', 18, currentY + 21);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(schoolNotes !== '-' ? 180 : 30, schoolNotes !== '-' ? 83 : 41, schoolNotes !== '-' ? 9 : 59);
+  doc.text(schoolNotes.length > 55 ? schoolNotes.slice(0, 52) + '...' : schoolNotes, 58, currentY + 21);
+  doc.setTextColor(30, 41, 59);
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Dicetak Pada :', 18, currentY + 28);
+  doc.setFont('helvetica', 'normal');
+  doc.text(printTimestamp, 58, currentY + 28);
+
+  // Column 2 (Right)
+  const col2X = 120;
+  doc.setFont('helvetica', 'bold');
+  doc.text('Periode Menu :', col2X, currentY + 7);
+  doc.setFont('helvetica', 'normal');
+  doc.text(periodText, col2X + 28, currentY + 7);
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Total Hari Aktif :', col2X, currentY + 14);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${uniqueDaysCount} Hari Pengiriman`, col2X + 28, currentY + 14);
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Total Akumulasi Porsi :', col2X, currentY + 21);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(37, 99, 235);
+  doc.text(`${totalPortions.toLocaleString('id-ID')} Porsi`, col2X + 38, currentY + 21);
+  doc.setTextColor(30, 41, 59);
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Status Distribusi :', col2X, currentY + 28);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${readyCount}/${totalSlots} Siap Kirim (${Math.round((readyCount / (totalSlots || 1)) * 100)}%)`, col2X + 28, currentY + 28);
+
+  currentY += 37;
+
+  // 3. MAIN TABLE OF MENUS
+  const tableHeaders = isSingleSchool
+    ? [['No', 'Hari & Tanggal', 'Jenis', 'Karbohidrat', 'Lauk Utama', 'Sayur', 'Buah / Ekstra', 'Porsi', 'Catatan Menu', 'Status']]
+    : [['No', 'Hari & Tanggal', 'Sekolah', 'Jenis', 'Menu Lengkap', 'Porsi', 'Catatan Menu & Alergi', 'Status']];
+
+  const tableBody = [];
+  rows.forEach((r, idx) => {
+    const formattedDate = fmtShort(r.date);
+    const statusText = r.status === 'ready' ? 'Siap Kirim' : 'Persiapan';
+
+    if (isSingleSchool) {
+      tableBody.push([
+        idx + 1,
+        formattedDate,
+        r.meal,
+        r.carb,
+        r.protein,
+        r.vegetable,
+        r.fruit,
+        `${r.portions} porsi`,
+        r.notes !== '-' ? r.notes : '-',
+        statusText
+      ]);
+    } else {
+      const menuFull = `${r.carb}, ${r.protein}, ${r.vegetable}, ${r.fruit}`.replace(/,\s*-/g, '');
+      const noteFull = [r.notes !== '-' ? r.notes : '', r.schoolNotes ? `[Alergi: ${r.schoolNotes}]` : ''].filter(Boolean).join(' • ') || '-';
+      tableBody.push([
+        idx + 1,
+        formattedDate,
+        r.schoolName,
+        r.meal,
+        menuFull,
+        `${r.portions} porsi`,
+        noteFull,
+        statusText
+      ]);
+    }
+  });
+
+  const tableFoot = isSingleSchool
+    ? [['', 'TOTAL AKUMULASI', '', '', '', '', '', `${totalPortions.toLocaleString('id-ID')} Porsi`, '', `${readyCount}/${totalSlots} Siap`]]
+    : [['', 'TOTAL AKUMULASI', '', '', `${uniqueDaysCount} Hari Pengiriman`, `${totalPortions.toLocaleString('id-ID')} Porsi`, '', `${readyCount}/${totalSlots} Siap`]];
+
+  doc.autoTable({
+    startY: currentY,
+    head: tableHeaders,
+    body: tableBody,
+    foot: tableFoot,
+    theme: 'grid',
+    margin: { left: 14, right: 14 },
+    styles: {
+      fontSize: 8,
+      cellPadding: 2.2,
+      textColor: [30, 41, 59],
+      lineColor: [226, 232, 240],
+      lineWidth: 0.15,
+      valign: 'middle'
+    },
+    headStyles: {
+      fillColor: [37, 99, 235],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      halign: 'center'
+    },
+    footStyles: {
+      fillColor: [234, 241, 255],
+      textColor: [30, 64, 175],
+      fontStyle: 'bold',
+      halign: 'center'
+    },
+    alternateRowStyles: {
+      fillColor: [248, 250, 252]
+    },
+    columnStyles: isSingleSchool ? {
+      0: { halign: 'center', cellWidth: 8 },
+      1: { cellWidth: 26 },
+      2: { cellWidth: 18 },
+      3: { cellWidth: 20 },
+      4: { cellWidth: 24 },
+      5: { cellWidth: 20 },
+      6: { cellWidth: 20 },
+      7: { halign: 'right', fontStyle: 'bold', cellWidth: 16 },
+      8: { cellWidth: 18 },
+      9: { halign: 'center', cellWidth: 14 }
+    } : {
+      0: { halign: 'center', cellWidth: 8 },
+      1: { cellWidth: 26 },
+      2: { cellWidth: 32, fontStyle: 'bold' },
+      3: { cellWidth: 18 },
+      4: { cellWidth: 42 },
+      5: { halign: 'right', fontStyle: 'bold', cellWidth: 18 },
+      6: { cellWidth: 24 },
+      7: { halign: 'center', cellWidth: 14 }
+    }
+  });
+
+  currentY = doc.lastAutoTable.finalY + 8;
+
+  // 4. INGREDIENTS / KITCHEN SUMMARY TABLE
+  const compEntries = Object.entries(componentCounts).sort((a, b) => b[1].count - a[1].count);
+  if (compEntries.length > 0) {
+    // Check page space
+    if (currentY + 45 > pageHeight - 35) {
+      doc.addPage();
+      currentY = 16;
+    }
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(30, 41, 59);
+    doc.text('Ringkasan Kebutuhan Bahan Masak & Lauk (Persiapan Dapur)', 14, currentY);
+    currentY += 4;
+
+    const typeLabel = { carb: 'Karbohidrat', protein: 'Lauk Utama', vegetable: 'Sayur', fruit: 'Buah / Ekstra' };
+    const opsBody = compEntries.map(([name, info], i) => [
+      i + 1,
+      name,
+      typeLabel[info.type] || 'Menu',
+      `${info.count.toLocaleString('id-ID')} Porsi`
+    ]);
+
+    doc.autoTable({
+      startY: currentY,
+      head: [['No', 'Nama Komponen Menu', 'Kategori Hidangan', 'Estimasi Total Kebutuhan Porsi']],
+      body: opsBody,
+      theme: 'grid',
+      margin: { left: 14, right: 14 },
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+        lineColor: [226, 232, 240],
+        lineWidth: 0.15
+      },
+      headStyles: {
+        fillColor: [71, 85, 105],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold'
+      },
+      columnStyles: {
+        0: { halign: 'center', cellWidth: 10 },
+        1: { cellWidth: 70 },
+        2: { cellWidth: 45 },
+        3: { halign: 'right', fontStyle: 'bold' }
+      }
+    });
+
+    currentY = doc.lastAutoTable.finalY + 12;
+  }
+
+  // 5. SIGNATURE SECTION
+  if (currentY + 40 > pageHeight - 20) {
+    doc.addPage();
+    currentY = 20;
+  }
+
+  const signColWidth = (pageWidth - 28) / 2;
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(51, 65, 85);
+
+  // Left Sign Box (Kitchen)
+  doc.text('Dipersiapkan & Dikelola Oleh,', 20, currentY);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Tim Operasional Dapur Catering', 20, currentY + 5);
+  doc.setFont('helvetica', 'normal');
+  doc.text('( ........................................................... )', 20, currentY + 26);
+  doc.text('Tanggal: _______________________', 20, currentY + 31);
+
+  // Right Sign Box (School / PIC)
+  const rightSignX = 14 + signColWidth + 10;
+  doc.text('Diterima & Diverifikasi Oleh,', rightSignX, currentY);
+  doc.setFont('helvetica', 'bold');
+  doc.text(isSingleSchool ? `PIC ${schoolName}` : 'Pihak Sekolah / Penerima', rightSignX, currentY + 5);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`( ${isSingleSchool && school && school.pic ? school.pic : '...........................................................'} )`, rightSignX, currentY + 26);
+  doc.text('Tanggal: _______________________', rightSignX, currentY + 31);
+
+  // 6. PAGE NUMBERING FOOTER ON ALL PAGES
+  const totalPages = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(148, 163, 184);
+    doc.setFont('helvetica', 'normal');
+    doc.text(
+      `Laporan Rekapitulasi Catering • Halaman ${i} dari ${totalPages} • Dokumen Resmi Catering Sekolah`,
+      pageWidth / 2,
+      pageHeight - 7,
+      { align: 'center' }
+    );
+  }
+
+  // 7. DOWNLOAD PDF FILE
+  const sanitizedName = schoolName.replace(/[^a-zA-Z0-9]/g, '_');
+  const filename = `Rekap_Catering_${sanitizedName}_${reportFilter.startDate}_sd_${reportFilter.endDate}.pdf`;
+  doc.save(filename);
+}
+
+// ==================== CSV EXPORT & PRINT ====================
+function exportCSV() {
+  const { rows, totalPortions } = getFilteredReportData();
+  if (!rows.length) {
+    alert('Tidak ada data menu pada filter yang dipilih untuk diexport.');
+    return;
+  }
+
+  const isSingleSchool = reportFilter.schoolId !== 'all';
+  const header = isSingleSchool
+    ? ['No', 'Tanggal', 'Hari', 'Jenis Makan', 'Karbohidrat', 'Lauk Utama', 'Sayur', 'Buah', 'Porsi', 'Catatan Menu', 'Status']
+    : ['No', 'Tanggal', 'Hari', 'Sekolah', 'Jenis Makan', 'Karbohidrat', 'Lauk Utama', 'Sayur', 'Buah', 'Porsi', 'Catatan Menu', 'Catatan Khusus Sekolah', 'Status'];
+
+  const csvRows = rows.map((r, i) => {
+    const dName = new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(new Date(r.date + 'T00:00:00'));
+    if (isSingleSchool) {
+      return [i + 1, r.date, dName, r.meal, r.carb, r.protein, r.vegetable, r.fruit, r.portions, r.notes, r.status === 'ready' ? 'Siap Kirim' : 'Persiapan'];
+    } else {
+      return [i + 1, r.date, dName, r.schoolName, r.meal, r.carb, r.protein, r.vegetable, r.fruit, r.portions, r.notes, r.schoolNotes || '-', r.status === 'ready' ? 'Siap Kirim' : 'Persiapan'];
+    }
+  });
+
+  const csv = [header, ...csvRows]
+    .map(row => row.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(','))
+    .join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const schName = isSingleSchool ? data.schools.find(s => s.id === reportFilter.schoolId)?.name || 'Sekolah' : 'Semua_Sekolah';
+  a.download = `Rekap_Catering_${schName.replace(/[^a-zA-Z0-9]/g, '_')}_${reportFilter.startDate}_sd_${reportFilter.endDate}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// Print Handler
+document.getElementById('printReportBtn').onclick = () => {
+  window.print();
+};
+
+// Event Attachments
+document.getElementById('downloadPdfBtn').onclick = generatePDF;
+document.getElementById('exportBtn').onclick = exportCSV;
+
+document.getElementById('datePicker').onchange = e => { selectedDate = e.target.value; renderAll(); };
+document.getElementById('prevDay').onclick = () => { selectedDate = addDays(selectedDate, -1); renderAll(); };
+document.getElementById('nextDay').onclick = () => { selectedDate = addDays(selectedDate, 1); renderAll(); };
+document.getElementById('weekStart').onchange = renderWeek;
+
+function showMenu() {
+  renderChecks();
+  const f = document.getElementById('menuForm');
+  f.date.value = selectedDate;
+  openModal('menuModal');
+}
+
+document.getElementById('addMenuBtn').onclick = showMenu;
+document.getElementById('addMenuBtn2').onclick = showMenu;
+document.getElementById('addSchoolBtn').onclick = () => openModal('schoolModal');
+
+document.getElementById('schoolForm').onsubmit = e => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  data.schools.push({
+    id: 's' + Date.now(),
+    name: f.get('name'),
+    students: Number(f.get('students')),
+    pic: f.get('pic'),
+    phone: f.get('phone'),
+    notes: f.get('notes'),
+    active: f.get('active') === 'yes'
+  });
+  save();
+  e.target.reset();
+  closeModal('schoolModal');
+  renderAll();
+  renderSchools();
+  renderReports();
+};
+
+document.getElementById('menuForm').onsubmit = e => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const schools = f.getAll('schools');
+  if (!schools.length) {
+    alert('Pilih minimal satu sekolah.');
+    return;
+  }
+  data.menus.push({
+    id: 'm' + Date.now(),
+    date: f.get('date'),
+    meal: f.get('meal'),
+    carb: f.get('carb'),
+    protein: f.get('protein'),
+    vegetable: f.get('vegetable'),
+    fruit: f.get('fruit'),
+    notes: f.get('notes'),
+    schools,
+    status: {}
+  });
+  save();
+  selectedDate = f.get('date');
+  e.target.reset();
+  closeModal('menuModal');
+  renderAll();
+  renderWeek();
+  renderReports();
+};
+
+document.getElementById('seedBtn').onclick = () => {
+  if (confirm('Reset ke data demo awal?')) {
+    data = seed();
+    save();
+    selectedDate = todayISO();
+    reportFilter = {
+      schoolId: 'all',
+      startDate: todayISO(),
+      endDate: addDays(todayISO(), 6)
+    };
+    renderAll();
+    renderReports();
+  }
+};
+
+// Initial Render
 renderAll();
+renderReports();
 </script>
 </body>
 </html>
